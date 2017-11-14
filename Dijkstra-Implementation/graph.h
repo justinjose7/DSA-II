@@ -18,13 +18,15 @@ public:
 private:
 	class node {
 	public:
-		std::list<node *> adjList; // for graph node
+		std::list<void *> adjList; // for graph node
 		std::string vertexId;
 		int distToSource;
 		bool known;
 		node *parent;
+	};
 
-
+	class edge {
+	public:
 		int cost; // for adjacency list node (edge 'node')...
 		node *dest;
 	};

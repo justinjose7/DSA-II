@@ -10,18 +10,18 @@
 using namespace std;
 
 hashTable::hashTable(int size){
-
 	capacity = getPrime(size);
 	data.resize(capacity);
 	
 	for(int i = 0; i < capacity; i++){
+		data[i].key = "";
 		data[i].isOccupied == 0;
 		data[i].isDeleted == 0;
+		data[i].pv = NULL;
 	}
 }
 
-hashTable::insert(const std::string &key, void *pv){
-
+int hashTable::insert(const std::string &key, void *pv){
 	int index = hash(key);
 
 	if (contains(key)){
@@ -40,8 +40,6 @@ hashTable::insert(const std::string &key, void *pv){
 		filled++;
 	}
 	
-
-
 	if (filled >= capacity/2) {
 			
 		if(!rehash()){ //rehash and check if memory allocation fails
@@ -49,15 +47,20 @@ hashTable::insert(const std::string &key, void *pv){
 		}
 	}
 
-
 	return 0;
+}
+
+bool hashTable::contains(const std::string &key){
+	if (findPos(key) != -1){
+		return true;
+	}
+	return false;
 }
 
 void *hashTable::getPointer(const string &key, bool *b){
 	int index = findPos(key);
 	
 	if(index == -1){
-		
 		*b = false;
 		return NULL;
 	}
@@ -78,10 +81,10 @@ int hashTable::setPointer(const string &key, void *pv){
 }
 
 int hashTable::findPos(const string &key){
-
 	int index = hash(key);
 		
 	while(data[index].isOccupied == true){
+		
 		if((data[index].key == key) && (data[index].isDeleted == false))
 			return index;
 
@@ -102,10 +105,11 @@ bool hashTable::remove(const string &key){
 	return true;
 }
 
-hashTable::hash(const std::string &key) //hash function found on google
+int hashTable::hash(const std::string &key) //hash function found on google
 {
    unsigned h = prime_0;
    int i = 0;
+
    for (int i = 0; i < key.size(); i++) {
      h = (h * A) ^ (key[i] * B);
    }
@@ -114,7 +118,6 @@ hashTable::hash(const std::string &key) //hash function found on google
 }
 
 bool hashTable::rehash(){
-
 	try{
 		vector<hashItem> temp = data;
 		capacity = getPrime(capacity * 2);
@@ -124,8 +127,8 @@ bool hashTable::rehash(){
 		data.resize(capacity);
 
 		for(int i = 0; i < temp.size(); i++){
+			
 			if(temp[i].isOccupied && !(temp[i].isDeleted)){
-				
 				insert(temp[i].key, temp[i].pv);
 			}
 				
@@ -137,15 +140,9 @@ bool hashTable::rehash(){
 	}
 }
 
-bool hashTable::contains(const std::string &key){
-	if (findPos(key) != -1){
-		return true;
-	}
-	return false;
-}
-
 bool isPrime(int size){
 	for (int i = 2; i <= size/2; i++){
+        
         if (size % i == 0)     //checks if has a factor that isn't 1 or size
            return false;
     }
@@ -157,6 +154,7 @@ unsigned int hashTable::getPrime(int size){
     while (!found)
     {
         size++;
+        
         if (isPrime(size))
             found = true;
     }

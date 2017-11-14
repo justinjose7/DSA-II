@@ -22,6 +22,7 @@ void graph::addEdge(const std::string &vertex1, const std::string &vertex2, int 
 		v1 = new node;
 		v1->distToSource = 1000000000;
 		v1->vertexId = vertex1;
+		v1->parent = NULL;
 		nodesEncountered->insert(vertex1, v1);
 		orderOfOutput->push_back(v1);
 		numberOfVertices++;
@@ -33,13 +34,14 @@ void graph::addEdge(const std::string &vertex1, const std::string &vertex2, int 
 		v2 = new node;
 		v2->distToSource = 1000000000;
 		v2->vertexId = vertex2;
+		v2->parent = NULL;
 		nodesEncountered->insert(vertex2, v2);
 		orderOfOutput->push_back(v2);
 		numberOfVertices++;
 
 	}
 
-	node *edge_v1v2 = new node;
+	edge *edge_v1v2 = new edge;
 	edge_v1v2->dest = static_cast<node *> (nodesEncountered->getPointer(vertex2, &containsV2));
 	edge_v1v2->cost = weight;
 	v1->adjList.push_back(edge_v1v2);
@@ -48,6 +50,7 @@ void graph::addEdge(const std::string &vertex1, const std::string &vertex2, int 
 
 int graph::shortestPath(const std::string &startingVertex){
 	bool validVertex;
+	
 	node* startNode = static_cast<node *> (nodesEncountered->getPointer(startingVertex, &validVertex));
 	
 	if(!validVertex)
@@ -60,12 +63,12 @@ int graph::shortestPath(const std::string &startingVertex){
 
 	while (!unknownVertices.deleteMin(NULL, NULL, &tmpDeletedNode)){
 
-		for (list<node *>::iterator it = tmpDeletedNode->adjList.begin(); it != tmpDeletedNode->adjList.end(); it++){
-			
-			if ((**it).dest->distToSource > tmpDeletedNode->distToSource + (**it).cost){
-				(**it).dest->distToSource = tmpDeletedNode->distToSource + (**it).cost;
-				(**it).dest->parent = tmpDeletedNode;
-				unknownVertices.insert((**it).dest->vertexId, (**it).dest->distToSource, (**it).dest);
+		for (list<void *>::iterator it = tmpDeletedNode->adjList.begin(); it != tmpDeletedNode->adjList.end(); it++){
+			edge* adjNode = static_cast<edge *> (*it);
+			if ((adjNode->dest)->distToSource > tmpDeletedNode->distToSource + adjNode->cost){
+				(adjNode->dest)->distToSource = tmpDeletedNode->distToSource + adjNode->cost;
+				(adjNode->dest)->parent = tmpDeletedNode;
+				unknownVertices.insert((adjNode->dest)->vertexId, (adjNode->dest)->distToSource, adjNode->dest);
 
 			}
 		}	
@@ -77,14 +80,14 @@ int graph::shortestPath(const std::string &startingVertex){
 int graph::output(ofstream &outFile){
 	for (list<node *>::iterator it = orderOfOutput->begin(); it != orderOfOutput->end(); it++){
 		list<string> parentArray;
-		node* parent = (*it);
-
+		node* parentNode = (*it);
+		
 		if ((*it)->distToSource != 1000000000){
 			outFile << (*it)->vertexId << ": " << (*it)->distToSource;
 
-			while (parent != NULL){
-				parentArray.push_front(parent->vertexId);
-				parent = parent->parent;
+			while (parentNode != NULL){
+				parentArray.push_front(parentNode->vertexId);
+				parentNode = parentNode->parent;
 			}
 
 			outFile << " [";
@@ -95,13 +98,14 @@ int graph::output(ofstream &outFile){
 
 				if (!parentArray.empty())
 					outFile << ", ";
+
 			}
 
 			outFile << "]" <<  endl;
 
-		} else{
+		} else {
 			outFile << (*it)->vertexId << ": NO PATH" << endl;
-
+		
 		}
 	}
 	return 1;
