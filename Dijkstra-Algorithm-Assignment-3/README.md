@@ -1,6 +1,6 @@
-Data Structures and Algorithms II
-Fall 2017
-Programming Assignment #3
+# Data Structures and Algorithms II
+## Fall 2017
+## Programming Assignment #3
 
 You are going implement Dijkstra's algorithm to solve the single-source shortest-path problem. The program will determine the shortest path in a specified graph from a specified starting vertex to each other vertex in the graph. In order to do this efficiently, your program should use the binary heap class that you created for the previous assignment.
 
